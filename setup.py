@@ -4,7 +4,7 @@ setup(
     name="project-util",
     version="0.0.1",
     packages=find_packages(
-        where='src',
+        where="src",
     ),
     package_dir={"": "src"},
     install_requires=[],
