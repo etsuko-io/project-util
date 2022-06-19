@@ -1,10 +1,14 @@
-import datetime
-from pathlib import Path
+import os
 from os import listdir, makedirs
 from os.path import isfile, join
-from random import randint
+from pathlib import Path
+from typing import Dict, List
 
-from constants import GREEK_ALPHABET
+import numpy as np
+from PIL import Image
+from vidutil.encoder import VideoEncoder
+
+from src.project.models import ImageVersion
 
 
 class Project:
@@ -12,7 +16,7 @@ class Project:
         self._parent_dir = parent_dir
         self._name = name
         self._project_dir: Path = self._make_project_dir(self._name)
-        self._folders = []
+        self.folders: Dict[str, Project] = {}
 
     def _make_project_dir(self, name: str) -> Path:
         path = Path(join(self._parent_dir, name))
@@ -21,30 +25,39 @@ class Project:
 
     @property
     def path(self) -> Path:
+        """
+        Return path to directory where current Project saves artefacts
+        :return:
+        """
         return self._project_dir
 
-    @staticmethod
-    def now() -> datetime:
-        return datetime.datetime.now().replace(microsecond=0)
+    def get_file_names(self):
+        return [
+            join(self.path, f) for f in listdir(self.path) if isfile(join(self.path, f))
+        ]
 
-    @staticmethod
-    def format_iso(date):
-        return date.isoformat().replace(":", "")
+    def save_png(self, data: np.ndarray, file_name: Path):
+        path = os.path.join(self.path, file_name)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        im = Image.fromarray(np.uint8(data))
+        im.save(path)
 
-    @staticmethod
-    def get_file_names(path: Path):
-        return [f for f in listdir(path) if isfile(join(path, f))]
+    def save_versions(self, versions: List[ImageVersion]):
+        for v in versions:
+            self.save_png(data=v.data, file_name=v.path)
 
-    def save_png(self, file_name):
-        pass
+    def export_frames_as_video(self, name: str) -> None:
+        """
+        Exports images in current folder as a video file. You can add .mp4 as an
+        extension in the name param.
+        :param name: file name to export
+        :return:
+        """
+        paths = VideoEncoder.list_images(self.path)
+        frames = VideoEncoder.load_images(paths)
+        VideoEncoder.save(
+            path=join(self.path, name), frames=frames, fps=24, size=frames[0].shape[0:2]
+        )
 
     def add_folder(self, name: str):
-        if getattr(self, name, None):
-            raise ValueError("Name not available")
-        sub_folder = Project(name, parent_dir=self._project_dir)
-        self._folders.append(sub_folder)
-        setattr(self, name, sub_folder)
-
-    @staticmethod
-    def random_name() -> str:
-        return GREEK_ALPHABET[randint(0, len(GREEK_ALPHABET))]
+        self.folders[name] = Project(name, parent_dir=self._project_dir)

@@ -1,11 +1,17 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
     name="project-util",
-    version="0.0.1",
+    version="0.0.2",
     packages=find_packages(
         where="src",
     ),
     package_dir={"": "src"},
-    install_requires=[],
+    install_requires=[
+        "numpy==1.22.4",
+        "opencv-contrib-python==4.5.5.64",
+        "Pillow==9.1.1",
+        "black==22.3.0",
+        "vidutil @ git+https://github.com/etsuko-io/vidutil.git#egg=vidutil-0.0.3",
+    ],
 )
