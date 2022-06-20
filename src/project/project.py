@@ -2,13 +2,15 @@ import os
 from os import listdir, makedirs
 from os.path import isfile, join
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, TypeVar
 
 import numpy as np
 from PIL import Image
 from vidutil.encoder import VideoEncoder
 
 from project.models import ImageVersion
+
+TProject = TypeVar("TProject", bound="Project")
 
 
 class Project:
@@ -59,5 +61,7 @@ class Project:
             path=join(self.path, name), frames=frames, fps=24, size=frames[0].shape[0:2]
         )
 
-    def add_folder(self, name: str):
-        self.folders[name] = Project(name, parent_dir=self._project_dir)
+    def add_folder(self, name: str) -> TProject:
+        folder = Project(name, parent_dir=self._project_dir)
+        self.folders[name] = folder
+        return folder
