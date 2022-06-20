@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from src.artefact.artefact import Artefact
-from src.project.project import Project
+from artefact.artefact import Artefact
+from project.project import Project
 
 if __name__ == "__main__":
     proj = Project(name="black-white-figures", parent_dir=Path("."))

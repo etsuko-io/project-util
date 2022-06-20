@@ -8,7 +8,7 @@ import numpy as np
 from cv2 import dnn_superres
 from PIL import Image
 
-from src.project.project import Project
+from project.project import Project
 
 TArtefact = TypeVar("TArtefact", bound="Artefact")
 

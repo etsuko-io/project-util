@@ -8,7 +8,7 @@ import numpy as np
 from PIL import Image
 from vidutil.encoder import VideoEncoder
 
-from src.project.models import ImageVersion
+from project.models import ImageVersion
 
 
 class Project:
