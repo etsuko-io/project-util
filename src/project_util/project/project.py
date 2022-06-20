@@ -8,7 +8,7 @@ import numpy as np
 from PIL import Image
 from vidutil.encoder import VideoEncoder
 
-from project.models import ImageVersion
+from project_util.project.models import ImageVersion
 
 TProject = TypeVar("TProject", bound="Project")
 

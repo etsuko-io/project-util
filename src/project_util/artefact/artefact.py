@@ -8,8 +8,8 @@ import numpy as np
 from cv2 import dnn_superres
 from PIL import Image
 
-from naming.naming import NamingUtil
-from project.project import Project
+from project_util.naming.naming import NamingUtil
+from project_util.project.project import Project
 
 TArtefact = TypeVar("TArtefact", bound="Artefact")
 
@@ -89,7 +89,7 @@ class Artefact:
                         then the filename becomes icon@3x.png.
         :return:
         """
-        file_name = self._insert_suffix(self.name, suffix)
+        file_name = NamingUtil.insert_suffix(self.name, suffix)
         project.save_png(data=self.data, file_name=Path(file_name))
 
     def fill(self, rgb: Tuple) -> None:
