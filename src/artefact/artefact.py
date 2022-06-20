@@ -8,6 +8,7 @@ import numpy as np
 from cv2 import dnn_superres
 from PIL import Image
 
+from naming.naming import NamingUtil
 from project.project import Project
 
 TArtefact = TypeVar("TArtefact", bound="Artefact")
@@ -50,16 +51,9 @@ class Artefact:
             raise ValueError("Upscale should be 2, 3, or 4")
         superres = self.get_superres_ml_model(upscale)
         return Artefact(
-            name=new_name or self._insert_suffix(self.name, suffix=f"@x{upscale}"),
+            name=new_name or NamingUtil.insert_suffix(self.name, suffix=f"@x{upscale}"),
             data=superres.upsample(self.data),
         )
-
-    @staticmethod
-    def _insert_suffix(file_name: str, suffix=None) -> str:
-        path = Path(file_name)
-        if suffix:
-            file_name = path.stem + suffix + path.suffix
-        return file_name
 
     @staticmethod
     @lru_cache
