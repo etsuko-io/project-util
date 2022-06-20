@@ -2,7 +2,7 @@ import datetime
 from pathlib import Path
 from random import randint
 
-from constants import GREEK_ALPHABET
+from project_util.constants import GREEK_ALPHABET
 
 
 class NamingUtil:
