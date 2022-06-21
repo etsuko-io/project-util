@@ -38,15 +38,11 @@ class Project:
             join(self.path, f) for f in listdir(self.path) if isfile(join(self.path, f))
         ]
 
-    def save_png(self, data: np.ndarray, file_name: Path):
+    def save_image(self, data: np.ndarray, file_name: Path):
         path = os.path.join(self.path, file_name)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         im = Image.fromarray(np.uint8(data))
         im.save(path)
-
-    def save_versions(self, versions: List[ImageVersion]):
-        for v in versions:
-            self.save_png(data=v.data, file_name=v.path)
 
     def export_frames_as_video(self, name: str) -> None:
         """
