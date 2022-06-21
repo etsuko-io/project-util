@@ -8,7 +8,7 @@ from project_util.constants import GREEK_ALPHABET
 class NamingUtil:
     @staticmethod
     def random_name() -> str:
-        return GREEK_ALPHABET[randint(0, len(GREEK_ALPHABET)-1)]
+        return GREEK_ALPHABET[randint(0, len(GREEK_ALPHABET) - 1)]
 
     @staticmethod
     def now() -> datetime:

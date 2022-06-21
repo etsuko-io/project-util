@@ -48,9 +48,16 @@ class Artefact:
         self.data = data
         self._update_size()
 
-    def get_superres(self, upscale: int = 4, new_name: str = None) -> TArtefact:
+    def get_superres(
+        self,
+        upscale: int = 4,
+        new_name: Optional[str] = None,
+        new_project: Optional[Project] = None,
+    ) -> TArtefact:
         """
         Return a version of the current artefact in an AI-upsampled resolution
+        :param project:
+        :param new_name:
         :param upscale:
         :return:
         """
@@ -60,6 +67,7 @@ class Artefact:
         return Artefact(
             name=new_name or NamingUtil.insert_suffix(self.name, suffix=f"@x{upscale}"),
             data=superres.upsample(self.data),
+            project=new_project or self.project,
         )
 
     @staticmethod
@@ -73,11 +81,6 @@ class Artefact:
         sr.setModel("edsr", upscale)
         return sr
 
-    def get_superres_pil(self, pil_image: Image, upscale: int = 4) -> Image:
-        cv2_img: np.ndarray = self.pil_to_cv2(img=pil_image)
-        cv_superres = self.get_superres(cv2_img, upscale)
-        return self.cv2_to_pil(cv_superres)
-
     @staticmethod
     def cv2_to_pil(data: np.ndarray) -> Image:
         return Image.fromarray(cv2.cvtColor(data, cv2.COLOR_BGR2RGB))
@@ -87,7 +90,9 @@ class Artefact:
         pil_as_arr = np.array(img)
         return cv2.cvtColor(pil_as_arr, cv2.COLOR_RGB2BGR)
 
-    def save(self, project: Optional[Project] = None, suffix: Optional[str] = None) -> None:
+    def save(
+        self, project: Optional[Project] = None, suffix: Optional[str] = None
+    ) -> None:
         """
         Save this artefact into a project
         :param project: a Project instance
