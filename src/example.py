@@ -14,8 +14,12 @@ if __name__ == "__main__":
     art.save(proj.folders["sketches"])
 
     # get a super-resolution version
-    super_version = art.get_superres()
-    super_version.save(proj.folders["highres"])
+    for upscale in (2, 3, 4, 6, 8, 9, 12, 16):
+        super_version = art.get_superres(upscale)
+        super_version.save(proj.folders["highres"])
+
+    super_version16 = art.get_superres(16)
+    super_version16.save(proj.folders["highres"])
 
     for g in range(96):
         art.fill((0, g, 0))

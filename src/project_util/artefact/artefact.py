@@ -58,15 +58,38 @@ class Artefact:
         Return a version of the current artefact in an AI-upsampled resolution
         :param project:
         :param new_name:
-        :param upscale:
+        :param upscale: 2, 3, 4, 6, 8, 9, 12, or 16
         :return:
         """
-        if upscale not in (2, 3, 4):
-            raise ValueError("Upscale should be 2, 3, or 4")
-        superres = self.get_superres_ml_model(upscale)
+        upscales = (2, 3, 4, 6, 8, 9, 12, 16)
+        if upscale not in upscales:
+            raise ValueError(f"Upscale should be one of {upscales}")
+        upscaled_img = None
+        if upscale < 5:
+            superres = self.get_superres_ml_model(upscale)
+            upscaled_img = superres.upsample(self.data)
+        elif upscale == 6:
+            superres2 = self.get_superres_ml_model(2)
+            superres3 = self.get_superres_ml_model(3)
+            upscaled_img = superres2.upsample(superres3.upsample(self.data))
+        elif upscale == 8:
+            superres2 = self.get_superres_ml_model(2)
+            superres4 = self.get_superres_ml_model(4)
+            upscaled_img = superres2.upsample(superres4.upsample(self.data))
+        elif upscale == 9:
+            superres3 = self.get_superres_ml_model(3)
+            upscaled_img = superres3.upsample(superres3.upsample(self.data))
+        elif upscale == 12:
+            superres3 = self.get_superres_ml_model(3)
+            superres4 = self.get_superres_ml_model(4)
+            upscaled_img = superres3.upsample(superres4.upsample(self.data))
+        elif upscale == 16:
+            superres4 = self.get_superres_ml_model(4)
+            upscaled_img = superres4.upsample(superres4.upsample(self.data))
         return Artefact(
-            name=new_name or NamingUtil.insert_suffix(self.name, suffix=f"@x{upscale}"),
-            data=superres.upsample(self.data),
+            name=new_name
+            or NamingUtil.insert_suffix(self.name, suffix=f"@x{upscale}"),
+            data=upscaled_img,
             project=new_project or self.project,
         )
 
