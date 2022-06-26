@@ -61,9 +61,11 @@ class Project:
             target_path = self.path
 
         paths = VideoEncoder.list_images(self.path)
+        logger.debug(f"Project path: {self.path}")
         logger.debug(f"Loading image paths: {paths}")
         frames = VideoEncoder.load_images(paths)
-        logger.debug(f"Video shape: {frames[0].shape[0:2]}")
+        if frames:
+            logger.debug(f"Video shape: {frames[0].shape[0:2]}")
         VideoEncoder.save(
             path=join(target_path, name),
             frames=frames,
