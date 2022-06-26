@@ -2,7 +2,7 @@ import os
 from os import listdir, makedirs
 from os.path import isfile, join
 from pathlib import Path
-from typing import Dict, TypeVar
+from typing import Dict, TypeVar, List
 
 import numpy as np
 from PIL import Image
@@ -40,6 +40,12 @@ class Project:
             if isfile(join(self.path, f))
         ]
 
+    def load_images(self) -> List[np.ndarray]:
+        paths = VideoEncoder.list_images(self.path)
+        logger.debug(f"Project path: {self.path}")
+        logger.debug(f"Loading image paths: {paths}")
+        return VideoEncoder.load_images(paths)
+
     def save_image(self, data: np.ndarray, file_name: Path):
         path = os.path.join(self.path, file_name)
         os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -60,17 +66,14 @@ class Project:
         else:
             target_path = self.path
 
-        paths = VideoEncoder.list_images(self.path)
-        logger.debug(f"Project path: {self.path}")
-        logger.debug(f"Loading image paths: {paths}")
-        frames = VideoEncoder.load_images(paths)
+        frames = self.load_images()
         if frames:
             logger.debug(f"Video shape: {frames[0].shape[0:2]}")
         VideoEncoder.save(
             path=join(target_path, name),
             frames=frames,
             fps=fps,
-            size=frames[0].shape[0:2],
+            size=frames[0].shape[1::-1],  # (H,W,_) > (W,H)
         )
 
     def add_folder(self, name: str) -> TProject:
