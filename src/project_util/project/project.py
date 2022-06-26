@@ -44,17 +44,24 @@ class Project:
         im = Image.fromarray(np.uint8(data))
         im.save(path)
 
-    def export_frames_as_video(self, name: str) -> None:
+    def export_frames_as_video(
+        self, name: str, target_project: TProject = None
+    ) -> None:
         """
         Exports images in current folder as a video file. You can add .mp4 as an
         extension in the name param.
         :param name: file name to export
         :return:
         """
+        if target_project:
+            target_path = target_project.path
+        else:
+            target_path = self.path
+
         paths = VideoEncoder.list_images(self.path)
         frames = VideoEncoder.load_images(paths)
         VideoEncoder.save(
-            path=join(self.path, name),
+            path=join(target_path, name),
             frames=frames,
             fps=24,
             size=frames[0].shape[0:2],
@@ -64,3 +71,7 @@ class Project:
         folder = Project(name, parent_dir=self._project_dir)
         self.folders[name] = folder
         return folder
+
+    def remove_folder(self, name: str) -> None:
+        os.removedirs(name)
+        del self.folders[name]
