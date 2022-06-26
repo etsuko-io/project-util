@@ -7,6 +7,8 @@ from typing import Dict, TypeVar
 import numpy as np
 from PIL import Image
 from vidutil.encoder import VideoEncoder
+from loguru import logger
+
 
 TProject = TypeVar("TProject", bound="Project")
 
@@ -45,7 +47,7 @@ class Project:
         im.save(path)
 
     def export_frames_as_video(
-        self, name: str, target_project: TProject = None
+        self, name: str, target_project: TProject = None, fps: int=24
     ) -> None:
         """
         Exports images in current folder as a video file. You can add .mp4 as an
@@ -59,11 +61,13 @@ class Project:
             target_path = self.path
 
         paths = VideoEncoder.list_images(self.path)
+        logger.debug(f"Loading image paths: {paths}")
         frames = VideoEncoder.load_images(paths)
+        logger.debug(f"Video shape: {frames[0].shape[0:2]}")
         VideoEncoder.save(
             path=join(target_path, name),
             frames=frames,
-            fps=24,
+            fps=fps,
             size=frames[0].shape[0:2],
         )
 
