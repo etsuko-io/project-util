@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="project-util",
-    version="0.0.17",
+    version="0.0.18",
     packages=find_packages(
         where="src",
     ),
@@ -14,7 +14,7 @@ setup(
         "opencv-contrib-python==4.5.5.64",
         "Pillow==9.1.1",
         "black==22.3.0",
-        "vidutil @ git+https://github.com/etsuko-io/vidutil.git#egg=vidutil-0.0.5",
+        "vidutil @ git+https://github.com/etsuko-io/vidutil.git#egg=vidutil-0.0.6",
         "loguru==0.6.0",
     ],
 )

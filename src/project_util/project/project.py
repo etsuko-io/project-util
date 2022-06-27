@@ -88,5 +88,6 @@ class Project:
         return folder
 
     def remove_folder(self, name: str) -> None:
+        # todo: use abspath
         os.removedirs(name)
         del self.folders[name]

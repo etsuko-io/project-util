@@ -25,4 +25,4 @@ if __name__ == "__main__":
         art.fill((0, g, 0))
         art.save(proj.folders["animation"], suffix=f"{g:02d}")
 
-    movie = proj.folders["animation"].export_frames_as_video(name="animation.mp4")
+    proj.folders["animation"].export_frames_as_video(name="animation.mp4")
