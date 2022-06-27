@@ -53,11 +53,16 @@ class Project:
         im.save(path)
 
     def export_frames_as_video(
-        self, name: str, target_project: TProject = None, fps: int=24
+        self,
+        name: str,
+        target_project: TProject = None,
+        fps: int = 24,
+        codec: str = "mp4v",
     ) -> None:
         """
         Exports images in current folder as a video file. You can add .mp4 as an
         extension in the name param.
+        :param codec: fourcc code
         :param name: file name to export
         :return:
         """
@@ -68,12 +73,13 @@ class Project:
 
         frames = self.load_images()
         if frames:
-            logger.debug(f"Video shape: {frames[0].shape[0:2]}")
+            logger.debug(f"Video shape: {frames[0].shape[1::-1]}")
         VideoEncoder.save(
             path=join(target_path, name),
             frames=frames,
             fps=fps,
             size=frames[0].shape[1::-1],  # (H,W,_) > (W,H)
+            codec=codec,
         )
 
     def add_folder(self, name: str) -> TProject:
