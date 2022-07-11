@@ -2,7 +2,7 @@ import os
 from os import listdir, makedirs
 from os.path import isfile, join
 from pathlib import Path
-from typing import Dict, TypeVar, List
+from typing import Dict, TypeVar, List, Union
 
 import numpy as np
 from PIL import Image
@@ -21,7 +21,7 @@ class Project:
         self.folders: Dict[str, Project] = {}
 
     def _make_project_dir(self, name: str) -> Path:
-        path = Path(join(self._parent_dir, name))
+        path = Path(join(self._parent_dir, name)).absolute()
         makedirs(path, exist_ok=True)
         return path
 
@@ -33,7 +33,19 @@ class Project:
         """
         return self._project_dir
 
+    def create_file_name(self, name: str) -> str:
+        """
+        Create a filename relative to the current project directory
+        :param name:
+        :return:
+        """
+        return os.path.join(self._project_dir, name)
+
     def get_file_names(self):
+        """
+        Get all filenames in current project directory
+        :return:
+        """
         return [
             join(self.path, f)
             for f in listdir(self.path)
@@ -57,7 +69,7 @@ class Project:
         name: str,
         target_project: TProject = None,
         fps: int = 24,
-        codec: str = "mp4v",
+        codec: Union[str, int] = "mp4v",
     ) -> None:
         """
         Exports images in current folder as a video file. You can add .mp4 as an
@@ -78,7 +90,6 @@ class Project:
             path=join(target_path, name),
             frames=frames,
             fps=fps,
-            size=frames[0].shape[1::-1],  # (H,W,_) > (W,H)
             codec=codec,
         )
 

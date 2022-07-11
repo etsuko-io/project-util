@@ -18,11 +18,17 @@ if __name__ == "__main__":
         super_version = art.get_superres(upscale)
         super_version.save(proj.folders["highres"])
 
-    super_version16 = art.get_superres(16)
+    super_version16 = art.get_superres(4)
     super_version16.save(proj.folders["highres"])
 
-    for g in range(96):
+    for g in range(24):
         art.fill((0, g, 0))
         art.save(proj.folders["animation"], suffix=f"{g:02d}")
 
-    proj.folders["animation"].export_frames_as_video(name="animation.mp4")
+    proj.folders["animation"].export_frames_as_video(name="an.mp4", codec="hvc1")
+
+
+def skip():
+    def wrap():
+        return wrap
+    return
