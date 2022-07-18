@@ -31,5 +31,5 @@ class S3Client:
             aws_session_token=aws_session_token,
         )
 
-    def save(self, data: bytes, bucket_name: str, path: str):
-        self._boto3.put_object(Body=data, Bucket=bucket_name, Key=path)
+    def save(self, data: bytes, bucket: str, path: str):
+        self._boto3.put_object(Body=data, Bucket=bucket, Key=path)

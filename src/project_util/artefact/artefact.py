@@ -8,7 +8,7 @@ import numpy as np
 from cv2 import dnn_superres
 from PIL import Image
 
-from project_util.constants import FILE_SYSTEM
+from project_util.constants import FILE_SYSTEM, S3
 from project_util.naming.naming import NamingUtil
 from project_util.project.project import Project
 
@@ -118,7 +118,6 @@ class Artefact:
         self,
         project: Optional[Project] = None,
         suffix: Optional[str] = None,
-        backend=FILE_SYSTEM,
     ) -> None:
         """
         Save this artefact into a project
@@ -133,6 +132,17 @@ class Artefact:
             project = self.project
         file_name = NamingUtil.insert_suffix(self.name, suffix)
         project.save_image(data=self.data, file_name=Path(file_name))
+
+    def save_to_s3(
+        self,
+        bucket: str,
+        project: Optional[Project] = None,
+        suffix: Optional[str] = None,
+    ):
+        if not project:
+            project = self.project
+        file_name = NamingUtil.insert_suffix(self.name, suffix)
+        project.save_image_to_s3(data=self.data, bucket=bucket, path=file_name)
 
     def fill(self, rgb: Tuple) -> None:
         image: Image = Image.new("RGB", self.size)

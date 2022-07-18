@@ -83,11 +83,13 @@ class Project:
         im.save(path)
         return os.path.abspath(path)
 
-    def save_to_s3(self, data: np.ndarray, bucket_name: str, path: str) -> str:
+    def save_image_to_s3(
+        self, data: np.ndarray, bucket: str, path: str
+    ) -> str:
         im = Image.fromarray(np.uint8(data))
         result = self.s3_client.save(
             data=im.tobytes(),
-            bucket_name=bucket_name,
+            bucket=bucket,
             path=path,
         )
         return result.get("ETag")
