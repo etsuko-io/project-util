@@ -9,16 +9,30 @@ from PIL import Image
 from vidutil.encoder import VideoEncoder
 from loguru import logger
 
+from project_util.constants import FILE_SYSTEM
+from project_util.services.s3 import S3Client
 
 TProject = TypeVar("TProject", bound="Project")
 
 
 class Project:
-    def __init__(self, name: str, parent_dir: Path):
+    def __init__(self, name: str, parent_dir: Path, backend: str = FILE_SYSTEM):
         self._parent_dir = parent_dir
         self._name = name
         self._project_dir: Path = self._make_project_dir(self._name)
         self.folders: Dict[str, Project] = {}
+        self._s3_client = None
+        self._backend = backend
+
+    @property
+    def s3_client(self):
+        if not self._s3_client:
+            self._s3_client = S3Client()
+        return self._s3_client
+
+    def dir_of_file(self, file, parents: int):
+        """Return the abs path of a __file__ variable"""
+        # todo: implement
 
     def _make_project_dir(self, name: str) -> Path:
         path = Path(join(self._parent_dir, name)).absolute()
@@ -58,11 +72,25 @@ class Project:
         logger.debug(f"Loading image paths: {paths}")
         return VideoEncoder.load_images(paths)
 
-    def save_image(self, data: np.ndarray, file_name: Path):
+    def save_image(
+        self,
+        data: np.ndarray,
+        file_name: Path,
+    ) -> str:
         path = os.path.join(self.path, file_name)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         im = Image.fromarray(np.uint8(data))
         im.save(path)
+        return os.path.abspath(path)
+
+    def save_to_s3(self, data: np.ndarray, bucket_name: str, path: str) -> str:
+        im = Image.fromarray(np.uint8(data))
+        result = self.s3_client.save(
+            data=im.tobytes(),
+            bucket_name=bucket_name,
+            path=path,
+        )
+        return result.get("ETag")
 
     def export_frames_as_video(
         self,

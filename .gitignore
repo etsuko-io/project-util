@@ -3,3 +3,4 @@
 *.pyc
 *.png
 *.mp4
+.env

@@ -24,3 +24,8 @@ GREEK_ALPHABET = [
     "psi",
     "omega",
 ]
+
+# backends
+FILE_SYSTEM = "FILE_SYSTEM"
+S3 = "S3"
+BACKENDS = [FILE_SYSTEM, S3]

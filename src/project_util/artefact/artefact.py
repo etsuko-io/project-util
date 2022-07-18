@@ -8,6 +8,7 @@ import numpy as np
 from cv2 import dnn_superres
 from PIL import Image
 
+from project_util.constants import FILE_SYSTEM
 from project_util.naming.naming import NamingUtil
 from project_util.project.project import Project
 
@@ -114,10 +115,14 @@ class Artefact:
         return cv2.cvtColor(pil_as_arr, cv2.COLOR_RGB2BGR)
 
     def save(
-        self, project: Optional[Project] = None, suffix: Optional[str] = None
+        self,
+        project: Optional[Project] = None,
+        suffix: Optional[str] = None,
+        backend=FILE_SYSTEM,
     ) -> None:
         """
         Save this artefact into a project
+        :param backend:
         :param project: a Project instance
         :param suffix: suffix to insert into the file name. For example,
                         if the suffix is @3x and the artefact name is icon.png,
