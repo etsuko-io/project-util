@@ -8,9 +8,9 @@ import numpy as np
 from cv2 import dnn_superres
 from PIL import Image
 
-from project_util.constants import FILE_SYSTEM, S3
 from project_util.naming.naming import NamingUtil
 from project_util.project.project import Project
+
 
 TArtefact = TypeVar("TArtefact", bound="Artefact")
 
@@ -101,7 +101,8 @@ class Artefact:
         current_dir = os.path.dirname(os.path.abspath(__file__))
         model_path = os.path.join(current_dir, f"ml-models/EDSR_x{upscale}.pb")
         sr.readModel(model_path)
-        # Set the desired model and scale to get correct pre- and post-processing
+        # Set the desired model and scale to get correct
+        # pre- and post-processing
         sr.setModel("edsr", upscale)
         return sr
 

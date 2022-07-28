@@ -1,9 +1,11 @@
 from pathlib import Path
 
+from dotenv import load_dotenv
 
 from project_util.artefact.artefact import Artefact
 from project_util.project.project import Project
-from dotenv import load_dotenv
+
+
 if __name__ == "__main__":
     load_dotenv("../.env")
     proj = Project(name="black-white-figures", parent_dir=Path("."))
@@ -28,7 +30,9 @@ if __name__ == "__main__":
         art.fill((0, g, 0))
         art.save(proj.folders["animation"], suffix=f"{g:02d}")
 
-    proj.folders["animation"].export_frames_as_video(name="an.mp4", codec="hvc1")
+    proj.folders["animation"].export_frames_as_video(
+        name="an.mp4", codec="hvc1"
+    )
 
 
 def skip():

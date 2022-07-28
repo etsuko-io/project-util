@@ -1,16 +1,18 @@
+import io
 import os
 from os import listdir, makedirs
 from os.path import isfile, join
 from pathlib import Path
-from typing import Dict, TypeVar, List, Union
+from typing import Dict, List, TypeVar, Union
 
 import numpy as np
+from loguru import logger
 from PIL import Image
 from vidutil.encoder import VideoEncoder
-from loguru import logger
 
 from project_util.constants import FILE_SYSTEM
 from project_util.services.s3 import S3Client
+
 
 TProject = TypeVar("TProject", bound="Project")
 
@@ -85,8 +87,11 @@ class Project:
 
     def save_image_to_s3(self, data: np.ndarray, bucket: str, path: str) -> str:
         im = Image.fromarray(np.uint8(data))
+        im_bytes = io.BytesIO()
+        im.save(im_bytes, format="PNG")
+
         result = self.s3_client.save(
-            data=im.tobytes(),
+            data=im_bytes.getvalue(),
             bucket=bucket,
             path=path,
         )
