@@ -94,11 +94,13 @@ class Project:
     def save_image(
         self,
         data: np.ndarray,
-        file_name: Path,
+        file_name: Union[str, Path],
         bucket: Optional[str] = None,
         img_format: str = "PNG",
     ) -> Union[Path, str]:
         # Candidate for moving to an image-specific project lib
+        if isinstance(file_name, Path):
+            file_name = file_name.as_posix()
         if self._backend == S3:
             if not bucket:
                 raise ValueError(
@@ -107,7 +109,7 @@ class Project:
             return self._save_image_to_s3(
                 data=data,
                 bucket=bucket,
-                path=file_name.as_posix(),
+                path=file_name,
                 img_format=img_format,
             )
         elif self._backend == FILE_SYSTEM:
@@ -118,7 +120,7 @@ class Project:
             raise ValueError(f"{self._backend} not supported")
 
     def _save_image_to_file_system(
-        self, data: np.ndarray, file_name: Path, img_format: str
+        self, data: np.ndarray, file_name: Union[str, Path], img_format: str
     ) -> str:
         # Candidate for moving to an image-specific project lib
         path = os.path.join(self.path, file_name)

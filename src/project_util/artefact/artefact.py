@@ -1,6 +1,5 @@
 import os.path
 from functools import lru_cache
-from pathlib import Path
 from typing import Optional, Tuple, TypeVar
 
 import cv2
@@ -115,25 +114,6 @@ class Artefact:
     def pil_to_cv2(img: Image) -> np.ndarray:
         pil_as_arr = np.array(img)
         return cv2.cvtColor(pil_as_arr, cv2.COLOR_RGB2BGR)
-
-    def save(
-        self,
-        project: Optional[Project] = None,
-        suffix: Optional[str] = None,
-    ) -> None:
-        """
-        Save this artefact into a project
-        :param backend:
-        :param project: a Project instance
-        :param suffix: suffix to insert into the file name. For example,
-                        if the suffix is @3x and the artefact name is icon.png,
-                        then the filename becomes icon@3x.png.
-        :return:
-        """
-        if not project:
-            project = self.project
-        file_name = NamingUtil.insert_suffix(self.name, suffix)
-        project.save_image(data=self.data, file_name=Path(file_name))
 
     def fill(self, rgb: Tuple) -> None:
         image: Image = Image.new("RGB", self.size)
