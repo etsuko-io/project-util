@@ -17,7 +17,6 @@ setup(
         "vidutil @ git+https://github.com"
         "/etsuko-io/vidutil.git#egg=vidutil-0.0.6",
         "loguru==0.6.0",
-        "pyfakefs",
         "boto3>=1.24.32,<2.0.0",
         "python-dotenv>=0.20.0,<1.0.0",
     ],

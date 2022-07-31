@@ -16,6 +16,7 @@ TArtefact = TypeVar("TArtefact", bound="Artefact")
 
 
 class Artefact:
+    # Class is candidate to move to image-specific lib
     def __init__(
         self,
         name: str,
@@ -133,17 +134,6 @@ class Artefact:
             project = self.project
         file_name = NamingUtil.insert_suffix(self.name, suffix)
         project.save_image(data=self.data, file_name=Path(file_name))
-
-    def save_to_s3(
-        self,
-        bucket: str,
-        project: Optional[Project] = None,
-        suffix: Optional[str] = None,
-    ):
-        if not project:
-            project = self.project
-        file_name = NamingUtil.insert_suffix(self.name, suffix)
-        project.save_image_to_s3(data=self.data, bucket=bucket, path=file_name)
 
     def fill(self, rgb: Tuple) -> None:
         image: Image = Image.new("RGB", self.size)

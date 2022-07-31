@@ -3,7 +3,7 @@ import os
 from os import listdir, makedirs
 from os.path import isfile, join
 from pathlib import Path
-from typing import Dict, List, TypeVar, Union
+from typing import Dict, List, Optional, TypeVar, Union
 
 import numpy as np
 from loguru import logger
@@ -54,9 +54,14 @@ class Project:
         """
         return self._project_dir
 
+    @property
+    def backend(self):
+        return self._backend
+
     def create_file_name(self, name: str) -> str:
         """
-        Create a filename relative to the current project directory
+        Create a filename relative to the current project directory.
+        Just an implementation of os.path.join() for the current project dir.
         :param name:
         :return:
         """
@@ -74,6 +79,7 @@ class Project:
         ]
 
     def load_images(self) -> List[np.ndarray]:
+        # Candidate for moving to an image-specific project lib
         paths = VideoEncoder.list_images(self.path)
         logger.debug(f"Project path: {self.path}")
         logger.debug(f"Loading image paths: {paths}")
@@ -89,18 +95,49 @@ class Project:
         self,
         data: np.ndarray,
         file_name: Path,
+        bucket: Optional[str] = None,
+        img_format: str = "PNG",
+    ) -> Union[Path, str]:
+        # Candidate for moving to an image-specific project lib
+        if self._backend == S3:
+            if not bucket:
+                raise ValueError(
+                    "bucket and path are required for saving to S3"
+                )
+            return self._save_image_to_s3(
+                data=data,
+                bucket=bucket,
+                path=file_name.as_posix(),
+                img_format=img_format,
+            )
+        elif self._backend == FILE_SYSTEM:
+            return self._save_image_to_file_system(
+                data, file_name, img_format=img_format
+            )
+        else:
+            raise ValueError(f"{self._backend} not supported")
+
+    def _save_image_to_file_system(
+        self, data: np.ndarray, file_name: Path, img_format: str
     ) -> str:
-        self._require_backend(FILE_SYSTEM)
+        # Candidate for moving to an image-specific project lib
         path = os.path.join(self.path, file_name)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         im = Image.fromarray(np.uint8(data))
-        im.save(path)
+        im.save(path, format=img_format)
         return os.path.abspath(path)
 
-    def save_image_to_s3(self, data: np.ndarray, bucket: str, path: str) -> str:
+    def _save_image_to_s3(
+        self,
+        data: np.ndarray,
+        bucket: str,
+        path: str,
+        img_format: str,
+    ) -> str:
+        # Candidate for moving to an image-specific project lib
         im = Image.fromarray(np.uint8(data))
         im_bytes = io.BytesIO()
-        im.save(im_bytes, format="PNG")
+        im.save(im_bytes, format=img_format)
 
         result = self.s3_client.save(
             data=im_bytes.getvalue(),
@@ -123,6 +160,7 @@ class Project:
         :param name: file name to export
         :return:
         """
+        # Candidate for moving to a video-specific project lib
         self._require_backend(FILE_SYSTEM)
         if target_project:
             target_path = target_project.path
@@ -149,5 +187,5 @@ class Project:
     def remove_folder(self, name: str) -> None:
         # todo: use abspath
         if self._backend == FILE_SYSTEM:
-            os.removedirs(name)
+            os.removedirs(self.path.joinpath(name))
         del self.folders[name]
