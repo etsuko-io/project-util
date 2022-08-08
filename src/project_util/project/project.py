@@ -109,7 +109,7 @@ class Project:
             return self._save_image_to_s3(
                 data=data,
                 bucket=bucket,
-                path=file_name,
+                path=f"{self.path}/{file_name}",
                 img_format=img_format,
             )
         elif self._backend == FILE_SYSTEM:
