@@ -34,12 +34,8 @@ class TestProject:
         assert not subfolder_path.exists()
 
     def test_save_image__file_system(self, fs):
-        project = Project(
-            name="test", parent_dir=Path("."), backend=FILE_SYSTEM
-        )
+        project = Project(name="test", parent_dir=Path("."), backend=FILE_SYSTEM)
         # Create example image
         img = Artefact(name="test_image", project=project, size=(10, 10))
-        path = project.save_image(
-            data=img.data, file_name=Path("my-test-image.png")
-        )
+        path = project.save_image(data=img.data, file_name=Path("my-test-image.png"))
         assert Path(path).exists()

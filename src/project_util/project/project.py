@@ -10,6 +10,7 @@ from loguru import logger
 from PIL import Image
 from vidutil.encoder import VideoEncoder
 
+from project_util.blueprint.blueprint import Blueprint
 from project_util.constants import FILE_SYSTEM, S3
 from project_util.services.s3 import S3Client
 
@@ -18,13 +19,20 @@ TProject = TypeVar("TProject", bound="Project")
 
 
 class Project:
-    def __init__(self, name: str, parent_dir: Path, backend: str = FILE_SYSTEM):
+    def __init__(
+        self,
+        name: str,
+        parent_dir: Path,
+        backend: str = FILE_SYSTEM,
+        blueprint: Blueprint = None,
+    ):
         self._backend = backend
         self._parent_dir = parent_dir
         self._name = name
         self._project_dir: Path = self._make_project_dir(self._name)
         self.folders: Dict[str, Project] = {}
         self._s3_client = None
+        self.blueprint = blueprint
 
     @property
     def s3_client(self):
@@ -73,9 +81,7 @@ class Project:
         :return:
         """
         return [
-            join(self.path, f)
-            for f in listdir(self.path)
-            if isfile(join(self.path, f))
+            join(self.path, f) for f in listdir(self.path) if isfile(join(self.path, f))
         ]
 
     def load_images(self) -> List[np.ndarray]:
@@ -87,9 +93,7 @@ class Project:
 
     def _require_backend(self, backend):
         if self._backend != backend:
-            raise RuntimeError(
-                f"operation is only supported on backend {backend}"
-            )
+            raise RuntimeError(f"operation is only supported on backend {backend}")
 
     def save_image(
         self,
@@ -103,13 +107,11 @@ class Project:
             file_name = file_name.as_posix()
         if self._backend == S3:
             if not bucket:
-                raise ValueError(
-                    "bucket and path are required for saving to S3"
-                )
+                raise ValueError("bucket and path are required for saving to S3")
             return self._save_image_to_s3(
                 data=data,
                 bucket=bucket,
-                path=f"{self.path}/{file_name}",
+                path=os.path.join(self.path, file_name),
                 img_format=img_format,
             )
         elif self._backend == FILE_SYSTEM:
@@ -148,6 +150,26 @@ class Project:
         )
         return result.get("ETag")
 
+    def save_blueprint(self, file_name: Union[str, Path], bucket: Optional[str] = None):
+        if not self.blueprint:
+            raise ValueError("Blueprint not set")
+
+        if self._backend == S3:
+            self._save_blueprint_to_s3(
+                bucket=bucket, path=os.path.join(self.path, file_name)
+            )
+
+        else:
+            raise NotImplementedError(f"Backend {self._backend} not supported yet")
+
+    def _save_blueprint_to_s3(self, bucket, path):
+        data = self.blueprint.export()
+        self.s3_client.save(
+            data=data.encode("utf-8"),
+            bucket=bucket,
+            path=path,
+        )
+
     def export_frames_as_video(
         self,
         name: str,
@@ -180,9 +202,7 @@ class Project:
         )
 
     def add_folder(self, name: str) -> TProject:
-        folder = Project(
-            name, parent_dir=self._project_dir, backend=self._backend
-        )
+        folder = Project(name, parent_dir=self._project_dir, backend=self._backend)
         self.folders[name] = folder
         return folder
 

@@ -88,8 +88,7 @@ class Artefact:
             superres4 = self.get_superres_ml_model(4)
             upscaled_img = superres4.upsample(superres4.upsample(self.data))
         return Artefact(
-            name=new_name
-            or NamingUtil.insert_suffix(self.name, suffix=f"@x{upscale}"),
+            name=new_name or NamingUtil.insert_suffix(self.name, suffix=f"@x{upscale}"),
             data=upscaled_img,
             project=new_project or self.project,
         )
