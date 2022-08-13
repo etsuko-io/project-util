@@ -39,3 +39,9 @@ class TestProject:
         img = Artefact(name="test_image", project=project, size=(10, 10))
         path = project.save_image(data=img.data, file_name=Path("my-test-image.png"))
         assert Path(path).exists()
+
+    def test_save_file__file_system(self, fs):
+        project = Project(name="test", parent_dir=Path("."), backend=FILE_SYSTEM)
+        some_text = "thou shall create"
+        path = project.save_file(some_text, "my_txt.txt")
+        assert Path(path).exists()

@@ -95,6 +95,12 @@ class Project:
         if self._backend != backend:
             raise RuntimeError(f"operation is only supported on backend {backend}")
 
+    def save_file(self, content: str, file_name: str) -> str:
+        path = join(self.path, file_name)
+        with open(path, "w") as file:
+            file.write(content)
+        return path
+
     def save_image(
         self,
         data: np.ndarray,
