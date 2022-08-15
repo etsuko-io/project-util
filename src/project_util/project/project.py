@@ -95,11 +95,16 @@ class Project:
         if self._backend != backend:
             raise RuntimeError(f"operation is only supported on backend {backend}")
 
-    def save_file(self, content: str, file_name: str) -> str:
+    def save_file(self, content: str, file_name: str, bucket: str) -> str:
         path = join(self.path, file_name)
-        with open(path, "w") as file:
-            file.write(content)
-        return path
+        if self._backend == FILE_SYSTEM:
+            with open(path, "w") as file:
+                file.write(content)
+            return path
+        elif self._backend == S3:
+            if not bucket:
+                raise ValueError("bucket and path are required for saving to S3")
+            return self._save_file_to_s3(content=content, bucket=bucket, path=path)
 
     def save_image(
         self,
@@ -151,6 +156,14 @@ class Project:
 
         result = self.s3_client.save(
             data=im_bytes.getvalue(),
+            bucket=bucket,
+            path=path,
+        )
+        return result.get("ETag")
+
+    def _save_file_to_s3(self, content: str, bucket: str, path: str):
+        result = self.s3_client.save(
+            data=content.encode("utf-8"),
             bucket=bucket,
             path=path,
         )
