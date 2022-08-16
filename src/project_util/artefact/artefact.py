@@ -96,14 +96,15 @@ class Artefact:
     @staticmethod
     @lru_cache
     def get_superres_ml_model(upscale):
-        sr = dnn_superres.DnnSuperResImpl_create()
+        superres = dnn_superres.DnnSuperResImpl_create()
         current_dir = os.path.dirname(os.path.abspath(__file__))
+        # todo: download this.
         model_path = os.path.join(current_dir, f"ml-models/EDSR_x{upscale}.pb")
-        sr.readModel(model_path)
+        superres.readModel(model_path)
         # Set the desired model and scale to get correct
         # pre- and post-processing
-        sr.setModel("edsr", upscale)
-        return sr
+        superres.setModel("edsr", upscale)
+        return superres
 
     @staticmethod
     def cv2_to_pil(data: np.ndarray) -> Image:

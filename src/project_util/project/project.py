@@ -95,7 +95,9 @@ class Project:
         if self._backend != backend:
             raise RuntimeError(f"operation is only supported on backend {backend}")
 
-    def save_file(self, content: str, file_name: str, bucket: str) -> str:
+    def save_file(
+        self, content: str, file_name: str, bucket: Optional[str] = None
+    ) -> str:
         path = join(self.path, file_name)
         if self._backend == FILE_SYSTEM:
             with open(path, "w") as file:
