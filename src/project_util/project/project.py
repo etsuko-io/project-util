@@ -29,7 +29,7 @@ class Project:
         self._backend = backend
         self._parent_dir = parent_dir
         self._name = name
-        self._project_dir: Path = self._make_project_dir(self._name)
+        self._project_dir: Path = self._get_project_dir()
         self.folders: Dict[str, Project] = {}
         self._s3_client = None
         self.blueprint = blueprint
@@ -44,15 +44,17 @@ class Project:
         """Return the abs path of a __file__ variable"""
         # todo: implement
 
-    def _make_project_dir(self, name: str) -> Path:
+    def _get_project_dir(self):
         if self._backend == FILE_SYSTEM:
-            path = Path(join(self._parent_dir, name)).absolute()
-            makedirs(path, exist_ok=True)
+            return Path(join(self._parent_dir, self._name)).absolute()
         elif self._backend == S3:
-            path = Path(join(self._parent_dir, name))
+            return Path(join(self._parent_dir, self._name))
+
+    def _make_project_dir(self):
+        if self._backend == FILE_SYSTEM:
+            makedirs(self.path, exist_ok=True)
         else:
             raise ValueError(f"Unsupported backend: {self._backend}")
-        return path
 
     @property
     def path(self) -> Path:
@@ -100,6 +102,7 @@ class Project:
     ) -> str:
         path = join(self.path, file_name)
         if self._backend == FILE_SYSTEM:
+            self.ensure_project_dir()
             with open(path, "w") as file:
                 file.write(content)
             return path
@@ -137,6 +140,7 @@ class Project:
     def _save_image_to_file_system(
         self, data: np.ndarray, file_name: Union[str, Path], img_format: str
     ) -> str:
+        self.ensure_project_dir()
         # Candidate for moving to an image-specific project lib
         path = os.path.join(self.path, file_name)
         os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -207,6 +211,7 @@ class Project:
         """
         # Candidate for moving to a video-specific project lib
         self._require_backend(FILE_SYSTEM)
+        self.ensure_project_dir()
         if target_project:
             target_path = target_project.path
         else:
@@ -222,7 +227,12 @@ class Project:
             codec=codec,
         )
 
+    def ensure_project_dir(self):
+        if not self._project_dir.exists():
+            self._make_project_dir()
+
     def add_folder(self, name: str) -> TProject:
+        self.ensure_project_dir()
         folder = Project(name, parent_dir=self._project_dir, backend=self._backend)
         self.folders[name] = folder
         return folder

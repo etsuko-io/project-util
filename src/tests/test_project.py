@@ -11,6 +11,11 @@ class TestProject:
         assert project.backend == FILE_SYSTEM
         assert project.folders == {}
         assert project.path.as_posix() == "/test"
+
+    def test_create_project_folder(self, fs):
+        project = Project(name="test", parent_dir=Path("."))
+        assert not project.path.exists()
+        project.ensure_project_dir()
         assert project.path.exists()
 
     def test_create_file_name(self, fs):
@@ -27,6 +32,8 @@ class TestProject:
         project.add_folder("results")
         assert isinstance(project.folders["results"], Project)
         subfolder_path = project.folders["results"].path
+        assert not subfolder_path.exists()
+        project.folders["results"].ensure_project_dir()
         assert subfolder_path.exists()
 
         # remove folder
