@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="project-util",
-    version="0.0.35",
+    version="0.0.36",
     packages=find_packages(
         where="src",
     ),
