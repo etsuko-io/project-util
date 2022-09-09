@@ -113,7 +113,7 @@ class Project:
 
     def save_image(
         self,
-        data: np.ndarray,
+        data: Union[np.ndarray, Image.Image],
         file_name: Union[str, Path],
         bucket: Optional[str] = None,
         img_format: str = "PNG",
@@ -137,26 +137,37 @@ class Project:
         else:
             raise ValueError(f"{self._backend} not supported")
 
+    @classmethod
+    def to_pillow(cls, data: Union[np.ndarray, Image.Image]):
+        if isinstance(data, Image.Image):
+            return data
+        elif isinstance(data, np.ndarray):
+            return Image.fromarray(np.uint8(data))
+        raise ValueError(f"Unsupported data format: {type(data)}")
+
     def _save_image_to_file_system(
-        self, data: np.ndarray, file_name: Union[str, Path], img_format: str
+        self,
+        data: Union[np.ndarray, Image.Image],
+        file_name: Union[str, Path],
+        img_format: str,
     ) -> str:
         self.ensure_project_dir()
         # Candidate for moving to an image-specific project lib
         path = os.path.join(self.path, file_name)
         os.makedirs(os.path.dirname(path), exist_ok=True)
-        im = Image.fromarray(np.uint8(data))
+        im = self.to_pillow(data)
         im.save(path, format=img_format)
         return os.path.abspath(path)
 
     def _save_image_to_s3(
         self,
-        data: np.ndarray,
+        data: Union[np.ndarray, Image.Image],
         bucket: str,
         path: str,
         img_format: str,
     ) -> str:
         # Candidate for moving to an image-specific project lib
-        im = Image.fromarray(np.uint8(data))
+        im = self.to_pillow(data)
         im_bytes = io.BytesIO()
         im.save(im_bytes, format=img_format)
 

@@ -9,3 +9,6 @@ style:
 
 install-local:
 	pip install -r requirements-local.txt
+
+test:
+	pytest src/tests -vv
