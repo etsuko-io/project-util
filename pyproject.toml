@@ -29,11 +29,11 @@ known_third_party = []
 
 [tool.poetry]
 name = "project-util"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Ruben Cronie <rubencronie@gmail.com>"]
 readme = "README.md"
-packages = [{include = "src"}]
+packages = [{include = "src/project_util"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
