@@ -8,10 +8,10 @@ from typing import Dict, List, Optional, TypeVar, Union
 import numpy as np
 from loguru import logger
 from PIL import Image
-from vidutil.encoder import VideoEncoder
 
 from project_util.blueprint.blueprint import Blueprint
 from project_util.constants import FILE_SYSTEM, S3
+from project_util.image_utils import list_images, load_images
 from project_util.services.s3 import S3Client
 
 
@@ -88,10 +88,10 @@ class Project:
 
     def load_images(self) -> List[np.ndarray]:
         # Candidate for moving to an image-specific project lib
-        paths = VideoEncoder.list_images(self.path)
+        paths = list_images(self.path)
         logger.debug(f"Project path: {self.path}")
         logger.debug(f"Loading image paths: {paths}")
-        return VideoEncoder.load_images(paths)
+        return load_images(paths)
 
     def _require_backend(self, backend):
         if self._backend != backend:
@@ -204,38 +204,6 @@ class Project:
             data=data.encode("utf-8"),
             bucket=bucket,
             path=path,
-        )
-
-    def export_frames_as_video(
-        self,
-        name: str,
-        target_project: TProject = None,
-        fps: int = 24,
-        codec: Union[str, int] = "mp4v",
-    ) -> None:
-        """
-        Exports images in current folder as a video file. You can add .mp4 as an
-        extension in the name param.
-        :param codec: fourcc code
-        :param name: file name to export
-        :return:
-        """
-        # Candidate for moving to a video-specific project lib
-        self._require_backend(FILE_SYSTEM)
-        self.ensure_project_dir()
-        if target_project:
-            target_path = target_project.path
-        else:
-            target_path = self.path
-
-        frames = self.load_images()
-        if frames:
-            logger.debug(f"Video shape: {frames[0].shape[1::-1]}")
-        VideoEncoder.save(
-            path=join(target_path, name),
-            frames=frames,
-            fps=fps,
-            codec=codec,
         )
 
     def ensure_project_dir(self):

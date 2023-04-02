@@ -26,3 +26,33 @@ include_trailing_comma = true
 lines_after_imports = 2
 known_first_party = []
 known_third_party = []
+
+[tool.poetry]
+name = "project-util"
+version = "0.1.0"
+description = ""
+authors = ["Ruben Cronie <rubencronie@gmail.com>"]
+readme = "README.md"
+packages = [{include = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+numpy = "^1.22.4"
+opencv-contrib-python = "4.5.5.64"
+pillow = "9.1.1"
+loguru = "^0.6.0"
+boto3 = "^1.26.104"
+python-dotenv = "^1.0.0"
+fastapi-utils = "^0.2.1"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.3.0"
+isort = "^5.12.0"
+pre-commit = "^3.2.1"
+pyfakefs = "^5.2.0"
+pytest = "^7.2.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
